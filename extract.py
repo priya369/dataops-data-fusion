@@ -4,8 +4,8 @@ import random
 import string
 from google.cloud import storage
 
-# Specify number of employees to generate
-num_employees = 100
+# Specify the number of employees to generate
+num_employees = 150
 
 # Create Faker instance
 fake = Faker()
@@ -20,7 +20,8 @@ with open('employee_data.csv', mode='w', newline='') as file:
 
     writer.writeheader()
     for _ in range(num_employees):
-        writer.writerow({
+        # Generate a data dictionary
+        data = {
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "job_title": fake.job(),
@@ -29,8 +30,12 @@ with open('employee_data.csv', mode='w', newline='') as file:
             "address": fake.city(),
             "phone_number": fake.phone_number(),
             "salary": fake.random_number(digits=5),  # Generate a random 5-digit salary
-            "password": ''.join(random.choice(password_characters) for _ in range(8))  # Generate an 8-character password with 'm'
-        })
+            "password": ''.join(random.choice(password_characters) for _ in range(8))  # Generate an 8-character password
+        }
+
+        # Ensure the row has exactly 9 fields
+        if len(data) == len(fieldnames):
+            writer.writerow(data)
 
 # Upload the CSV file to a GCS bucket
 def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
